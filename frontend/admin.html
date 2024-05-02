@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">StraySafe</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                <a class="nav-link" href="#">Features</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Pricing</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+              </li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <br><br><br><br>
+    <div class="row justify-content-center mb-4">
+        <div class="col-6">
+            <div class="row">
+                <div class="col">
+                    <input id="delUserId" type="text" class="form-control" placeholder="User Id">
+                </div>
+                <div class="col">
+                    <button id="delUserBut" class="btn btn-danger">Delete User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-4">
+        <div class="col-6">
+            <div class="row">
+                <div class="col">
+                    <input id="makeAdminId" type="text" class="form-control" placeholder="User Id">
+                </div>
+                <div class="col">
+                    <button id="makeAdminBut" class="btn btn-primary">Make Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-4">
+        <div class="col-6">
+            <div class="row">
+                <div class="col">
+                    <input id="delNgoId" type="text" class="form-control" placeholder="NGO Id">
+                </div>
+                <div class="col">
+                    <button id="delNgoBut" class="btn btn-danger">Delete NGO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-4">
+        <div class="col-6">
+            <div class="row">
+                <div class="col">
+                    <input id="markResId" type="text" class="form-control" placeholder="Incident Id">
+                </div>
+                <div class="col">
+                    <button id="markResBut" class="btn btn-success">Mark Resolved</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-4">
+        <div class="col-6">
+            <p>NGO Registration:</p>
+            <form id="registrationForm">
+                <div class="row">
+                    <div class="col form-group">
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Name" required>
+                    </div>
+                    <!-- <div class="col form-group">
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required> -->
+                </div>
+                <div class="form-group">
+                    Latitude: <input type="text" id="latitude" name="latitude" class="form-control" />
+                    Longitude: <input type="text" id="longitude" name="longitude" class="form-control" />
+                    <br>
+                    <button onclick="getLocation()" class="btn btn-secondary">Get Location</button><br><br>
+
+                    <input type="email" name="email" class="form-control" placeholder="ngo@email.com" /><br>
+                    <input type="password" name="password" class="form-control" placeholder="Password" /><br>
+
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" name="about" rows="5" placeholder="About NGO" required></textarea>
+                </div>
+                <!-- `        <div class="my-3">
+                        <div class="loading">Loading</div>
+                        <div class="error-message"></div>
+                        <div class="sent-message">The incident has been reported. Thank you for your support!</div> -->
+                <div class="text-center"><button type="submit" class="btn btn-primary ">Submit</button></div>
+                <script>
+                    const x = document.getElementById("demo");
+
+                    function getLocation() {
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(showPosition);
+                        } else {
+                            latitude.innerHTML = "Geolocation is not supported by this browser.";
+                        }
+                    }
+
+                    function showPosition(position) {
+                        latitude.value = position.coords.latitude;
+                        longitude.value = position.coords.longitude;
+                    }
+                </script>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        if (localStorage.getItem("jwt") == null) {
+            window.location = "/LoginPage/loginpage.html"
+        }
+
+        // NGO REGISTRATION
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registrationForm');
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const jsonData = {};
+
+                formData.forEach(function (value, key) {
+                    jsonData[key] = value;
+                });
+                jsonData["latitude"] = parseFloat(jsonData["latitude"])
+                jsonData["longitude"] = parseFloat(jsonData["longitude"])
+
+                try {
+                    const response = await fetch('http://straysafe.centralindia.cloudapp.azure.com:9876/ngo/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jsonData)
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'NGO Added',
+                            icon: 'success',
+                            confirmButtonText: 'Continue'
+                        })
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Status code: ' + response.status,
+                            icon: 'error',
+                            confirmButtonText: 'Continue'
+                        })
+                        console.error('Registration failed. Status code: ' + response.status);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                            title: 'Error',
+                            text: error,
+                            icon: 'error',
+                            confirmButtonText: 'Continue'
+                        })
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        document.getElementById("delUserBut").addEventListener("click", () => {
+            id = document.getElementById("delUserId").value
+            fetch("http://straysafe.centralindia.cloudapp.azure.com:8080/admin/delete/" + id, {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("jwt"),
+                },
+            }).then(response => {
+          if (response.status == 401) {
+            window.location.replace("/LoginPage/loginpage.html");
+          }
+          if (!response.ok) {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Sommething went wrong',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })
+          }
+          return response.text();
+        })
+        .then(data => {
+          Swal.fire({
+              title: 'Succesful!',
+              // text: 'Sommething went wrong',
+              icon: 'success',
+              confirmButtonText: 'Continue'
+            })
+          // Handle success
+        })
+        .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Network Error',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })          // Handle error
+        });
+    });
+    document.getElementById("makeAdminBut").addEventListener("click", () => {
+            id = document.getElementById("makeAdminId").value
+            fetch("http://straysafe.centralindia.cloudapp.azure.com:8080/admin/make/" + id, {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("jwt"),
+                },
+            }).then(response => {
+          if (response.status == 401) {
+            window.location.replace("/LoginPage/loginpage.html");
+          }
+          if (!response.ok) {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Sommething went wrong',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })
+          }
+          return response.text();
+        })
+        .then(data => {
+          Swal.fire({
+              title: 'Succesful!',
+              // text: 'Sommething went wrong',
+              icon: 'success',
+              confirmButtonText: 'Continue'
+            })
+          // Handle success
+        })
+        .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Network Error',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })          // Handle error
+        });
+    });
+    document.getElementById("delNgoBut").addEventListener("click", () => {
+            id = document.getElementById("delNgoId").value
+            fetch("http://straysafe.centralindia.cloudapp.azure.com:8080/admin/delete_ngo/" + id, {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("jwt"),
+                },
+            }).then(response => {
+          if (response.status == 401) {
+            window.location.replace("/LoginPage/loginpage.html");
+          }
+          if (!response.ok) {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Sommething went wrong',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })
+          }
+          return response.text();
+        })
+        .then(data => {
+          Swal.fire({
+              title: 'Succesful!',
+              // text: 'Sommething went wrong',
+              icon: 'success',
+              confirmButtonText: 'Continue'
+            })
+          // Handle success
+        })
+        .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Network Error',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })          // Handle error
+        });
+    });
+    document.getElementById("markResBut").addEventListener("click", () => {
+            id = document.getElementById("markResId").value
+            fetch("http://straysafe.centralindia.cloudapp.azure.com:8080/admin/resolve/" + id, {
+                method: "GET",
+                headers: {
+                    "Authorization": localStorage.getItem("jwt"),
+                },
+            }).then(response => {
+          if (response.status == 401) {
+            window.location.replace("/LoginPage/loginpage.html");
+          }
+          if (!response.ok) {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Sommething went wrong',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })
+          }
+          return response.text();
+        })
+        .then(data => {
+          Swal.fire({
+              title: 'Succesful!',
+              // text: 'Sommething went wrong',
+              icon: 'success',
+              confirmButtonText: 'Continue'
+            })
+          // Handle success
+        })
+        .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Network Error',
+              icon: 'error',
+              confirmButtonText: 'Continue'
+            })          // Handle error
+        });
+    });
+    </script>
+</body>
+
+</html>
