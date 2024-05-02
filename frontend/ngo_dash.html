@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">StraySafe</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+              </li>
+              <!-- <li class="nav-item">
+                <a class="nav-link" href="#">Features</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Pricing</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+              </li> -->
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <br><br><br><br>
+      <div class="container">
+        <div class="col-12" id="ngodata">
+
+        </div>
+        <br><br><br>
+        <div class="col-12" id="incidents">
+              <div class="row justify-content-between mb-4" id="1"></div>
+        </div>
+        </div>
+      </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        function markResolved(incident) {
+          return func => {
+            fetch(`http://straysafe.centralindia.cloudapp.azure.com:8080/ngo/resolveIncident/${incident}`, {
+              method: "GET",
+              headers: {
+                  "Authorization": "Bearer " + localStorage.getItem("jwt")
+              }
+            }).then(res => {
+              if (!res.ok) {
+                throw new Error("Network response was not ok")
+              }
+            })
+          }
+        }
+
+        if (localStorage.getItem("jwt") == null) {
+            window.location.replace("LoginPage/loginpage.html")
+        }
+        fetch("http://straysafe.centralindia.cloudapp.azure.com:8080/ngo/dashboard", {
+            method: 'GET',
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("jwt")
+            }
+        }).then(res => {
+            if (res.status == 401) {
+                window.location.replace("LoginPage/loginpage.html")
+            }
+            if (!res.ok) {
+                throw new Error("Network response was not ok")
+            }
+            return res.text()
+        }).then(data => {
+            var ngodata = document.getElementById("ngodata");  
+            var cont = document.getElementById("incidents")
+            var cur = document.getElementById("1")
+            var i = 0
+            var currow = 1
+            var data = JSON.parse(data)
+
+            ngodata.innerHTML = `
+            <div class="card">
+              <iframe class="card-image-top"
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6885.614740281928!2d76.364701!3d30.356424!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391028ab86533db5%3A0x93cc1f72eae1c9a8!2sThapar%20Institute%20of%20Engineering%20%26%20Technology!5e0!3m2!1sen!2sus!4v1714128639195!5m2!1sen!2sus"
+              frameborder="0" style="border:0; width: 100%; height: 200px;" allowfullscreen></iframe>
+              <h5 class="card-title">${data["content"]["ngo"]["name"]}</h5>
+              <p class="card-text">${data["content"]["ngo"]["about"]}</p>
+              <p class="card-text"><strong>Contact: </strong>${data["content"]["ngo"]["email"]}</p>
+              <p class="card-text"><strong>Incidents Resolved: </strong>${data["content"]["num"]}</p>
+            </div>
+            `
+            
+            data["content"]["inc"].forEach(element => {
+                if (i == 3) {
+                    currow += 1
+                    cont.insertAdjacentHTML("beforeend", `
+                    <div class="row justify-content-between mb-4" id=${currow}>
+
+                    </div>
+                    `)
+                    cur = document.getElementById(`${currow}`)
+                    i = 0;
+                }
+                cur.insertAdjacentHTML("beforeend", `
+                <div class="card" style="width: 18rem;">
+                    <img src="http://straysafe.centralindia.cloudapp.azure.com:8080/static/${element["image"]}" class="card-img-top" alt="..." width=400>
+                    <div class="card">
+                        <h5 class="card-title">${element["title"]}</h5>
+                        <p class="card-text">${element["description"]}</p>
+                        <button class="btn btn-primary" id="btn-${element["id"]}">Mark Resolved</button>
+                    </div>
+                </div>
+                `)
+                document.getElementById("btn-" + element["id"]).addEventListener("click", () => {
+                  markResolved(element["id"])()
+                })
+                i += 1
+            });
+        })
+        .catch(error => {
+            console.log(error)
+        })
+    </script>
+</body>
+
+</html>
